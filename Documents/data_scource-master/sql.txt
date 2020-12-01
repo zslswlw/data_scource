@@ -1,0 +1,47 @@
+CREATE TABLE IF NOT EXISTS %1("
+                            "well_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
+                            "well_pid VARCHAR(100) NOT NULL, "
+                            "well_addr VARCHAR(40) NOT NULL, "
+                            "well_value VARCHAR(40) NOT NULL, "
+                            "PRIMARY KEY ( well_time ))ENGINE=InnoDB DEFAULT CHARSET=utf8;").arg(table_name);
+
+
+CREATE TABLE tree_config(well_name VARCHAR(40) NOT NULL,well_param VARCHAR(40) NOT NULL,well_unit VARCHAR(40) NOT NULL,well_ip VARCHAR(40) NOT NULL,well_port VARCHAR(40) NOT NULL,well_id VARCHAR(40) NOT NULL,well_addr VARCHAR(40) NOT NULL,well_dtype VARCHAR(40) NOT NULL,well_fromat VARCHAR(40) NOT NULL, PRIMARY KEY (well_name, well_addr));
+
+
+
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "油压","MPa","192.168.1.2","502","1","40001","float","ABCD");
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "套压","MPa","192.168.1.2","502","1","40002","float","ABCD");
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "流量","万方/天","192.168.1.2","502","1","40003","float","ABCD");
+
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "油压","MPa","192.168.1.3","502","1","40001","float","ABCD");
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "套压","MPa","192.168.1.3","502","1","40002","float","ABCD");
+INSERT INTO tree_config (well_name,well_param,well_unit,well_ip,well_port,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "流量","万方/天","192.168.1.3","502","1","40003","float","ABCD");
+
+ALTER TABLE tree_config DROP PRIMARY KEY;
+ALTER TABLE tree_config ADD PRIMARY KEY (well_name, well_addr);
+
+select well_name, group_concat(well_param) as well_param, group_concat(well_unit) as well_unit, group_concat(well_ip) as well_ip,  group_concat(well_addr) as well_addr from tree_config group by well_name;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create table well_num (well_name VARCHAR(40) NOT NULL,  well_ip VARCHAR(40) NOT NULL, well_port VARCHAR(40) NOT NULL, PRIMARY KEY (well_name));
+insert into well_num(well_name, well_ip, well_port) values("天东1井","192.168.1.2","502");
+insert into well_num(well_name, well_ip, well_port) values("天东2井","192.168.1.3","502");
+insert into well_num(well_name, well_ip, well_port) values("天东3井","192.168.1.4","502");
+insert into well_num(well_name, well_ip, well_port) values("天东4井","192.168.1.5","502");
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create table well_conf(well_name VARCHAR(40) NOT NULL,well_param VARCHAR(40) NOT NULL,well_unit VARCHAR(40) NOT NULL,well_id VARCHAR(40) NOT NULL,well_addr VARCHAR(40) NOT NULL,well_dtype VARCHAR(40) NOT NULL,well_fromat VARCHAR(40) NOT NULL, PRIMARY KEY (well_name, well_addr));
+INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "油压","MPa","1","40001","float","ABCD");
+INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "套压","MPa","1","40002","float","ABCD");
+INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东1井", "流量","万方/天","1","40003","float","ABCD");
+
+INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "油压","MPa","1","40001","float","ABCD");
+INSERT INTO well_conf(well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "套压","MPa","1","40002","float","ABCD");
+INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "流量","万方/天","1","40003","float","ABCD");
+
+
+
+
+
+
+
+
