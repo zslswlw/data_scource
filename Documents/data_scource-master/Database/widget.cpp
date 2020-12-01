@@ -120,7 +120,7 @@ void Widget::on_pushButton_clicked()
 void Widget::on_pushButton_2_clicked()
 {
     static QSqlQueryModel *model_table = new QSqlQueryModel(ui->tableView);
-    model_table->setQuery("select * from well_tbl");
+    model_table->setQuery("select * from well_conf");
     model_table->setHeaderData(0, Qt::Horizontal, tr("时间"));
     model_table->setHeaderData(1, Qt::Horizontal, tr("设备号"));
     model_table->setHeaderData(2, Qt::Horizontal, tr("设备地址"));
@@ -534,21 +534,21 @@ void Widget::on_pushButton_5_clicked()
         lay3->addWidget(wl_pID_val);
 
         QHBoxLayout *lay4=new QHBoxLayout;
-        lay3->addWidget(wl_paddr);
-        lay3->addWidget(wl_paddr_val);
+        lay4->addWidget(wl_paddr);
+        lay4->addWidget(wl_paddr_val);
 
         QHBoxLayout *lay5=new QHBoxLayout;
-        lay3->addWidget(wl_pdtype);
-        lay3->addWidget(wl_pdtype_val);
+        lay5->addWidget(wl_pdtype);
+        lay5->addWidget(wl_pdtype_val);
 
         QHBoxLayout *lay6=new QHBoxLayout;
-        lay3->addWidget(wl_pfromat);
-        lay3->addWidget(wl_pfromat_val);
+        lay6->addWidget(wl_pfromat);
+        lay6->addWidget(wl_pfromat_val);
 
 
         QHBoxLayout *lay7=new QHBoxLayout;
-        lay4->addWidget(ok_btn);
-        lay4->addWidget(cancel_btn);
+        lay7->addWidget(ok_btn);
+        lay7->addWidget(cancel_btn);
         QVBoxLayout *v1=new QVBoxLayout;
         v1->addLayout(lay1);
         v1->addLayout(lay2);
@@ -606,8 +606,8 @@ void Widget::on_pushButton_7_clicked()
 }
 
 void Widget::on_pushButton_8_clicked(){
-    QMap<QString,  QList<QString>> it_Map;
-    QList<QString> it_List;
+    QMap<QString,  QList<QMap<QString,QMap<QString,QString>>>> it_Map;
+    QList<QMap<QString,QMap<QString,QString>>> it_List;
     int num =ui->treeWidget_conf->topLevelItemCount();
 
     for(int i=0; i<num; i++){
@@ -615,26 +615,78 @@ void Widget::on_pushButton_8_clicked(){
 
         QTreeWidgetItem* currenttopLevelItem =ui->treeWidget_conf->topLevelItem(i);
         int itemChildrenCounts = currenttopLevelItem->childCount();
+        it_List.clear();
+        int j = 0;
+        while(j < itemChildrenCounts){
+            QTreeWidgetItem* currentChild = currenttopLevelItem->child(j);
+            QMap<QString,QMap<QString,QString>> qmap;
+            QMap<QString, QString> qmap_2;
+            if(currentChild->childCount()==0){
+                qmap_2.clear();
+                qmap_2.insert("key",((QLineEdit* )(ui->treeWidget_conf->itemWidget(currentChild, 1)))->text());
+                qmap.insert(currentChild->text(0), qmap_2);
+            }else{
+                int itemChildrenCounts_2 = currentChild->childCount();
+                int k = 0;
+                qmap_2.clear();
+                while(k < itemChildrenCounts_2){
 
-        while(itemChildrenCounts--){
-            QTreeWidgetItem* currentChild = currenttopLevelItem->child(itemChildrenCounts);
+                    QTreeWidgetItem* currentChild_2 = currentChild->child(k);
+                    qmap_2.insert(currentChild_2->text(0), ((QLineEdit* )(ui->treeWidget_conf->itemWidget(currentChild_2, 1)))->text());
+                    qmap.insert(((QLineEdit* )(ui->treeWidget_conf->itemWidget(currentChild, 1)))->text(), qmap_2);
+                    k++;
+                }
+            }
 
-            //it_List.clear();
-            it_List<<currentChild->text(0)<<((QLineEdit*)ui->treeWidget_conf->itemWidget(currentChild, 1))->text();
+            it_List<<qmap;
+
             it_Map.insert(currenttopLevelItem->text(0), it_List);
+            j++;
         }
     }
-    QMap<QString,  QList<QString>>::Iterator it=it_Map.begin();
+
+    qDebug()<<it_Map;
+    QMap<QString,  QList<QMap<QString,QMap<QString,QString>>>>::Iterator it=it_Map.begin();
     while(it!=it_Map.end())
     {
-//        QSqlQuery query;
-//        query.prepare("REPLACE INTO well_num (well_name, well_ip, well_port) values(:well_name, :well_ip, :well_port);");
-//        query.bindValue(":well_name",it.key());
-//        query.bindValue(":well_ip",it.value().);
-//        query.bindValue(":Sijian",this->ui->idNumber->text());
+        QSqlQuery query;
+        query.prepare("REPLACE INTO well_num (well_name, well_ip, well_port) values(:well_name, :well_ip, :well_port);");
+        query.bindValue(":well_name",it.key());
+        query.bindValue(":well_ip",it.value().at(0).value("IP").value("key"));
+        query.bindValue(":well_port",it.value().at(1).value("端口").value("key"));
 //        query.bindValue(":Shijian",Catchtime);
-//        query.exec();
-        qDebug()<<it.key()<<"\t"<<it.value();
+//        QString sql = "REPLACE INTO well_num (well_name, well_ip, well_port) values ('天东12井', '192.168.1.100', '502');";
+        if(!query.exec())
+        {
+            qDebug()<<query.lastError()<<"well_num error";//--------->QSqlError("", "Unable to fetch row", "No query")
+        }
+//        else
+//        {
+//           while(query.next())
+//           {
+//                maxid=query.value(0).toInt();
+//                qDebug()<<maxid;
+
+//           }
+          QList<QMap<QString,QMap<QString,QString>>>::Iterator it_list = it.value().begin()+2;
+          while (it_list!=it.value().end()) {
+                query.prepare("REPLACE INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) values(:well_name,:well_param,:well_unit,:well_id,:well_addr,:well_dtype,:well_fromat);");
+                query.bindValue(":well_name",it.key());
+                query.bindValue(":well_param",it_list->begin().key());
+                query.bindValue(":well_unit",it_list->begin().value().value("单位"));
+                query.bindValue(":well_id",it_list->begin().value().value("ID"));
+                query.bindValue(":well_addr",it_list->begin().value().value("地址"));
+                query.bindValue(":well_dtype",it_list->begin().value().value("类型"));
+                query.bindValue(":well_fromat",it_list->begin().value().value("格式"));
+//                QString sql = "REPLACE INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) values('天东1井', '流量','万方/天','1','40005','float','ABCD')";
+                if(!query.exec())
+                {
+                    qDebug()<<query.lastError()<<"well_config error";//--------->QSqlError("", "Unable to fetch row", "No query")
+                }
+//                qDebug()<<it.key()<<"\t"<<it_list->begin().key()<<"\t"<<it_list->begin().value().value("单位")<<it_list->begin().value().value("ID");
+                it_list++;
+          }
+
         it++;
     }
 

@@ -38,6 +38,8 @@ INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dty
 INSERT INTO well_conf(well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "套压","MPa","1","40002","float","ABCD");
 INSERT INTO well_conf (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) VALUES ("天东2井", "流量","万方/天","1","40003","float","ABCD");
 
+REPLACE INTO well_config (well_name,well_param,well_unit,well_id,well_addr,well_dtype,well_fromat) values('天东1井', '流量','万方/天','1','40003','float','ABCD');
+
 
 
 
